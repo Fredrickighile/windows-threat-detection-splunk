@@ -1,10 +1,6 @@
-# windows-threat-detection-splunk
-SOC home lab — brute force detection using Splunk SIEM, SPL queries, and Windows Event Logs
-
 # Windows Threat Detection Lab — Splunk SIEM Project
 
-**Built by:** Fredrick Ighile | Cybersecurity Analyst | Hamilton, ON  
-**GitHub:** [github.com/Fredrickighile](https://github.com/Fredrickighile) | **LinkedIn:** [linkedin.com/in/fredrick-ighile](https://linkedin.com/in/fredrick-ighile)
+**Fredrick Ighile** | [github.com/Fredrickighile](https://github.com/Fredrickighile) | [LinkedIn](https://linkedin.com/in/fredrick-ighile)
 
 ---
 
@@ -58,7 +54,7 @@ The goal was to build something that reflects what security teams actually do da
 ## Lab Architecture
 
 ```
-[Windows Host: Fred-Ighile]
+[Windows Host: SOC-LAB-01]
         |
         | Windows Event Logs (Security, System, Application)
         |
@@ -79,8 +75,8 @@ The goal was to build something that reflects what security teams actually do da
 
 **Scenario:** An attacker from a machine named `KALI-ATTACK` attempts to brute force the `administrator` account on a Windows host. After 7 failed attempts across multiple usernames, they successfully authenticate at 12:00:08.
 
-**Accounts targeted:** administrator, admin, guest  
-**Attack duration:** 8 seconds (12:00:01 — 12:00:08)  
+**Accounts targeted:** administrator, admin, guest
+**Attack duration:** 8 seconds (12:00:01 — 12:00:08)
 **Result:** Administrator account compromised via network logon (Logon Type 3)
 
 **Event IDs used:**
@@ -160,13 +156,11 @@ source="brute_force.log"
 | 12:00:07 | guest | KALI-ATTACK | 4625 | FAILED ATTEMPT |
 | 12:00:08 | administrator | KALI-ATTACK | 4624 | SUCCESS - ATTACKER GOT IN |
 
-**Why this matters:** This is the output you show to management or include in an incident report. One table tells the whole story.
-
 ---
 
 ## Detection 4 — Compromised Host Classifier
 
-**What it detects:** Automatically classifies attacking hosts as COMPROMISED or BLOCKED based on whether they achieved a successful login.
+**What it detects:** Automatically classifies attacking hosts as COMPROMISED or BLOCKED.
 
 **SPL Query:**
 ```spl
@@ -184,13 +178,11 @@ source="brute_force.log"
 |---|---|---|---|
 | KALI-ATTACK | 7 | 1 | COMPROMISED |
 
-**Why this matters:** In a real SOC with hundreds of alerts, this query instantly tells you which attacking hosts succeeded. Triage in seconds, not minutes.
-
 ---
 
 ## SOC Dashboard
 
-The SOC Threat Detection Dashboard combines all 4 detections into a single view. This is what an analyst would have open during a shift to monitor for active threats.
+The SOC Threat Detection Dashboard combines all 4 detections into a single view.
 
 **Dashboard panels:**
 - Compromised Host Classifier (top-level summary)
@@ -198,18 +190,18 @@ The SOC Threat Detection Dashboard combines all 4 detections into a single view.
 - Full Attack Timeline (second-by-second)
 - Successful Login After Brute Force (confirmed compromise)
 
-> Screenshots of the dashboard are in the `/screenshots` folder of this repo.
+> Screenshots in the `/screenshots` folder.
 
 ---
 
 ## Automated Alert
 
-**Alert name:** ALERT - Brute Force Attack Detected  
-**Type:** Scheduled, runs every hour  
-**Trigger condition:** Number of results > 0 (any account with 3+ failed logins)  
-**Action:** Add to Triggered Alerts console  
+**Alert name:** ALERT - Brute Force Attack Detected
+**Type:** Scheduled, runs every hour
+**Trigger condition:** Number of results > 0 (any account with 3+ failed logins)
+**Action:** Add to Triggered Alerts console
 
-**In a production environment this alert would also:**
+In a production environment this alert would also:
 - Send an email to the SOC team
 - Create a ticket in ServiceNow or Jira
 - Trigger a Slack/Teams notification to the on-call analyst
